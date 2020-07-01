@@ -1,0 +1,95 @@
+<html>
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+    <title>Sinhala Song Search Engine</title>
+</head>
+<body>
+<form action="http://127.0.0.1:5000/" method="post">
+    <div class="container panel" style="margin-top: 20px">
+        <div class="row">
+                <div class="col-sm-2">Search Here:</div>
+                <div class="col-sm-4"><input type="text" class="form-control" id="club" name="query" value="{{ que }}"></div>
+                <div class="col-sm-4"><input type="submit" class="btn btn-success btn-block" id="submit" name="next" value="Search" /></div>
+        </div>
+    </div>
+</form>
+{% if results_count==0 %}
+    <div class="container panel">
+        <div class="row">
+                No results found
+        </div>
+    </div>
+{% endif %}
+{% if results_count %}
+    <div class="container panel">
+        <div class="row" style="font-size: 12px;">
+            Got {{ results_count }} results for query - "{{ que }}".
+            <div class="panel panel-body">
+                <br>Summery <br>
+
+            <div class="row">
+                <div class="col-sm-3">Writer
+                    <br>
+                        <ul>
+                        {% for item in agg['Lyrics Filter']['buckets']  %}
+                            <li>{{ item['key'] }}<span class="badge badge-pill badge-success">{{ item['doc_count'] }}</span></li>
+                        {% endfor %}
+                        </ul>
+                </div>
+                <div class="col-sm-3">Artist
+                <br>
+                        <ul>
+                        {% for item in agg['Artist Filter']['buckets']  %}
+                            <li>{{ item['key'] }}<span class="badge badge-pill badge-success">{{ item['doc_count'] }}</span></li>
+                        {% endfor %}
+                        </ul>
+                </div>
+                <div class="col-sm-3">Music
+                <br>
+                        <ul>
+                        {% for item in agg['Music Filter']['buckets']  %}
+                            <li>{{ item['key'] }}<span class="badge badge-pill badge-success">{{ item['doc_count'] }}</span></li>
+                        {% endfor %}
+                        </ul>
+                </div>
+                <div class="col-sm-3">Genre
+                <br>
+                        <ul>
+                        {% for item in agg['Genre Filter']['buckets']  %}
+                            <li>{{ item['key'] }}<span class="badge badge-pill badge-success">{{ item['doc_count'] }}</span></li>
+                        {% endfor %}
+                        </ul>
+                </div>
+            </div>
+            </div>
+            <div class="accordion col-sm-12" id="accordionExample">
+                {% for hit in hits %}
+                      <div class="card">
+                <div class="card-header" id="headingTwo">
+                  <h2 class="mb-0">
+                    <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#id{{ hit._id }}" aria-expanded="false" aria-controls="collapseTwo">
+                      {{ hit._source.title }} - {{ hit._source.Artist }}
+                    </button>
+                  </h2>
+                </div>
+                <div id="id{{ hit._id }}" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
+                  <div class="card-body">
+                      <ul>
+                          <li>Artist : {{ hit._source.Artist }} ({{ hit._source.Artist_si }})</li>
+                          <li>Lyrics by : {{ hit._source.Lyrics }} ({{ hit._source.Lyrics_si }})</li>
+                          <li>Views : {{ hit._source.views }}</li>
+                      </ul>
+                      <span style="white-space: pre-line">{{ hit._source.song_lyrics }}</span>
+                  </div>
+                </div>
+              </div>
+                {%  endfor %}
+            </div>
+        </div>
+    </div>
+{% endif %}
+</body>
+</html>
